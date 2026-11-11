@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Для тебя</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Cormorant+SC:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="splash"><div><h1 id="sTitle"></h1><p>нажми, чтобы войти</p></div></div>
+<nav id="tabs"></nav>
+<main>
+  <section id="t0" class="tab alt"></section>
+  <section id="t1" class="tab"><div id="videos"></div></section>
+  <section id="t2" class="tab">
+    <div id="write">
+      <h2>Оставь записку</h2>
+      <p id="hint"></p>
+      <textarea id="text" rows="6" placeholder="Что хочется запомнить?"></textarea>
+      <div class="row"><button id="save" class="btn">сохранить</button><button id="dl" class="btn">скачать все записки</button></div>
+      <p id="msg"></p>
+      <div id="saved"></div>
+    </div>
+  </section>
+  <section id="t3" class="tab alt"></section>
+</main>
+<div id="modal"><article><button id="close" aria-label="Закрыть">×</button><h2></h2><p></p></article></div>
+<script src="sfx.js"></script>
+<script src="palette.js"></script>
+<script src="app.js"></script>
+<script src="extras.js"></script>
+<script src="extras2.js"></script>
+<script src="extras3.js"></script>
+<script src="track.js"></script>
+<script src="extras4.js"></script>
+</body>
+</html>

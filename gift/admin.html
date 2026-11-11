@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Наблюдатель</title>
+<style>
+body{margin:0;padding:1.5rem;background:#0b0709;color:#d0d3da;font:16px/1.5 Georgia,serif}
+h1,h2{font-weight:400;letter-spacing:.1em}
+input,select,button{background:#1a0b10;color:#d0d3da;border:1px solid #8d919b;padding:.3rem .8rem;font:inherit}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:2rem;margin-top:1.5rem}
+.bar{display:flex;align-items:center;gap:.6rem;margin:.3rem 0}
+.bar img{width:42px;height:42px;object-fit:cover;border-radius:3px}
+.bar span{flex:0 0 200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:14px;background:#a02439;border-radius:2px}
+.bar b{font-weight:400;color:#8d919b}
+</style></head><body>
+<h1>Панель наблюдателя</h1>
+<p><input id="k" type="password" placeholder="ADMIN_KEY"> <button id="go">загрузить</button> <select id="yr"></select> <span id="info"></span></p>
+<div class="g" id="out"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let rows = [];
+$("#k").value = sessionStorage.getItem("ak") || "";
+$("#go").onclick = async () => {
+  const k = $("#k").value; sessionStorage.setItem("ak", k);
+  try {
+    const ex = await fetch("data/extras.json").then(r => r.json());
+    rows = await fetch(ex.notifyUrl + "/stats", { headers: { "X-Admin": k } }).then(r => { if (!r.ok) throw 0; return r.json(); });
+  } catch (e) { $("#info").textContent = "не удалось загрузить (проверь ключ и привязку KV)"; return; }
+  const ys = [...new Set(rows.map(r => new Date(r.t).getFullYear()))].sort();
+  $("#yr").innerHTML = '<option value="">все годы</option>' + ys.map(y => "<option>" + y + "</option>").join("");
+  draw();
+};
+$("#yr").onchange = draw;
+function draw() {
+  const y = $("#yr").value, R = rows.filter(r => !y || new Date(r.t).getFullYear() == y), A = {};
+  const sec = { ps: "Фото, секунд", ss: "Песни, секунд", vs: "Кружки, секунд", tabs: "Вкладки, секунд", notes: "Записки, открытий", btn: "Кнопки, нажатий", up: "Загруженные песни" };
+  R.forEach(r => Object.keys(sec).forEach(f => { A[f] = A[f] || {}; for (const [k, v] of Object.entries(r[f] || {})) A[f][k] = (A[f][k] || 0) + v; }));
+  $("#info").textContent = R.length + " сессий";
+  $("#out").innerHTML = Object.entries(sec).map(([f, t]) => {
+    const e = Object.entries(A[f] || {}).sort((a, b) => b[1] - a[1]).slice(0, 10), m = e[0] ? e[0][1] : 1;
+    return "<div><h2>" + t + "</h2>" + (e.map(([k, v]) => '<div class="bar">' + (f == "ps" ? '<img src="photos/' + encodeURIComponent(k) + '" onerror="this.onerror=null;this.src=\'my-photos/' + encodeURIComponent(k) + '\'">' : "") + '<span title="' + esc(k) + '">' + esc(k) + '</span><i style="width:' + Math.round(v / m * 160) + 'px"></i><b>' + v + "</b></div>").join("") || "—") + "</div>";
+  }).join("");
+}
+</script></body></html>
